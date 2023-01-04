@@ -1,5 +1,5 @@
 <div id="header" align="center">
-    <img src="https://media.giphy.com/media/3oKIPpFhwsMNrRIjN6/giphy.gif" width="400">
+    <img src="https://media.giphy.com/media/3oKIPpFhwsMNrRIjN6/giphy.gif" width="800">
     <h1 align="center"> Hi, I'm Santiago Saucedo</h1>
 </div>
 
