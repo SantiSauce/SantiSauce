@@ -35,3 +35,276 @@
 </div>
 
 
+/legajo=1729664
+//diagrama en hoja fisica
+
+object granja {
+	
+	var terrenos = []
+	
+	method agregarTerreno(terreno) {
+		terrenos.add(terreno)
+	}
+	
+	method plantar(cultivo, terreno){
+		terreno.plantar(cultivo)
+	}
+	
+}
+
+class Terreno { 
+	
+	var cultivos = []
+	
+	const tamanio
+	
+	method puedePlantar(cultivo) = {
+		cultivo.puedePlantarseEn(self)
+	}
+	
+	method plantar(cultivo){
+		if(self.puedePlantar(cultivo)){
+			cultivo.lugarDePlantacion(self)
+			cultivos.add(cultivo)
+		}
+	}
+	
+	method costoDeMantenimiento()
+	
+	method precioCultivo(cultivo){
+		if(cultivos.contains(cultivo)){
+			cultivo.precio(self)
+		}
+	}
+	
+	method esRico()
+	
+	method esCampoAbierto() = true	
+	
+	method mediaNutricional(){
+		if(cultivos.isEmpty()){
+			return 0
+		}else{
+			const valorNutricionalTotal = cultivos.map({c => c.valorNutricional()}).sum()
+			return valorNutricionalTotal / cultivos.size()
+		}
+	}
+	
+	method valorNeto() {
+		return self.valorTotalCultivos() - self.costoDeMantenimiento()
+	}
+	
+	method valorTotalCultivos() { 
+		return cultivos.map({c => c.precio(self)}).sum()
+	}
+	
+}
+
+class CampoAbierto inherits Terreno {
+	
+	const  riquezaDelSuelo
+	
+	override method costoDeMantenimiento() = { 500*tamanio }
+	
+	override method puedePlantar(cultivo) {
+		if((cultivos.size()/tamanio) < 4 and super(cultivo)){
+			return true
+		}else{
+			throw new DomainException(message="No se puede plantar el cultivo")
+		}
+	}
+	
+	override method esRico() = { riquezaDelSuelo > 100 }	
+	
+}
+class Invernadero inherits Terreno {
+	
+	
+	var property dispositivoElectronico
+	
+	//la determina el tamaño o se setea al instanciar
+	const capacidadMaxima
+	
+	const costoBase = 50000
+	
+	override method puedePlantar(cultivo) = { cultivo.size() < capacidadMaxima and super(cultivo)}
+	
+	method cambiarDispositivo(nuevoDispositivo) = self.dispositivoElectronico(nuevoDispositivo)
+	
+	override method costoDeMantenimiento() = costoBase + dispositivoElectronico.costoDeMantenimiento(self)
+	
+	override method esRico() {
+		
+		const cantidadCultivos = cultivos.size()
+		
+		if(cantidadCultivos < (capacidadMaxima/2)){
+			return true
+		}else if(dispositivoElectronico.esHumificador() and (40>dispositivoElectronico.humedadConfiguradaPorcentual()>20)){
+			return true
+		}else if (dispositivoElectronico.esRegulador()){
+			return true
+		}else{
+			return false
+		}
+		
+	}
+	
+	override method esCampoAbierto() = false
+	
+	
+	
+	
+}
+
+class Dispositivo {
+	
+	method costoDeMantenimiento()
+	
+	method esRegulador() = false
+	
+	method esHumificador() = false
+}
+
+class ReguladorNutricional inherits Dispositivo{
+	override method costoDeMantenimiento() {
+		return 2000
+	}
+	
+	override method esRegulador() = true
+}
+class Humificador inherits Dispositivo{
+	const property humedadConfiguradaPorcentual
+	
+	override method costoDeMantenimiento() {
+		if(humedadConfiguradaPorcentual <= 30){
+			return 1000
+		}else{
+			return 4500
+		}
+	}
+	
+	override method esHumificador() = true
+	
+}
+class PanelSolar inherits Dispositivo{
+	
+	override method costoDeMantenimiento() {
+		return -25000
+	}
+	
+	
+	
+}
+
+class Cultivo {
+	var property lugarDePlantacion = null
+	
+	
+	method valorNutricional(terreno)
+	
+	method puedePlantarseEn(terreno) = true
+	
+	method precio(terreno)
+	
+}
+
+class Papa inherits Cultivo {
+	
+	
+	override method valorNutricional(terreno) {
+		if(terreno.esRico()){
+			return 1500*2
+		}else{
+			return 1500
+		}
+	}
+	
+	override method precio(terreno) {
+		return self.valorNutricional(terreno)/2
+	}	
+	
+	
+}
+
+class Algodon inherits Cultivo {
+	
+	override method puedePlantarseEn(terreno) = terreno.esRico()
+	
+	override method valorNutricional(terreno) {
+		return 0
+	}
+	
+	override method precio(terreno){
+		return 500
+	}
+	
+	
+}
+
+class ArbolFrutal inherits Cultivo {
+	const edad
+	
+	const precioFruto
+	
+	const cantidadDeFrutos
+	
+	override method puedePlantarseEn(terreno) = terreno.esCampoAbierto()
+	
+	override method valorNutricional(terreno){
+		if(edad*3 > 4000){
+			return 4000
+		}else{
+			return edad*3
+		}
+	}
+	
+	override method precio(terreno){
+		return precioFruto*cantidadDeFrutos
+	}
+	
+}
+
+class PalmeraTropical inherits ArbolFrutal {
+	override method precio(terreno){
+		return super(terreno) * 5
+	}
+	
+	override method puedePlantarseEn(terreno) = super(terreno) and terreno.esRico()
+	
+	override method valorNutricional(terreno) {
+		const valor = edad*2
+		if(valor > 7500){
+			return 7500
+		}else{
+			return valor
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
